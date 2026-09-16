@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacto | Gestão Ergonômica</title>
+    
+    <!-- Ícone da guia do navegador (Favicon) -->
+    <link rel="icon" href="contacto.png" type="image/png">
+    
+    <!-- Fontes e Ícones -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js para os gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            /* Cores baseadas na Logo Contacto */
+            --bg-color: #090a0f;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.05);
+            --text-main: #f8f8f2;
+            --text-muted: #8b92a5;
+            
+            /* Identidade Visual Contacto */
+            --brand-indigo: #4a36b5; /* Tom iluminado do Azul Escuro da logo */
+            --brand-orange: #f27221; /* Laranja da logo */
+            
+            --danger: #ff4b4b;
+            --success: #00e676;
+            --warning: #ffd60a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 10% 40%, rgba(74, 54, 181, 0.12), transparent 30%),
+                radial-gradient(circle at 90% 20%, rgba(242, 114, 33, 0.08), transparent 30%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animação de entrada (Scroll e Load) */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .dashboard {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .logo-container {
+            background-color: #ffffff;
+            padding: 0.5rem 1.2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .logo-container img {
+            height: 45px;
+            object-fit: contain;
+            display: block;
+        }
+
+        .header-title h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #fff, var(--text-muted));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-title p {
+            color: var(--brand-orange);
+            font-weight: 400;
+            margin-top: 0.2rem;
+            font-size: 0.9rem;
+        }
+
+        /* Glassmorphism Cards */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 1.8rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.03), transparent);
+            transform: skewX(-25deg);
+            transition: 0.5s;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px) scale(1.01);
+            border-color: rgba(74, 54, 181, 0.3);
+            box-shadow: 0 15px 40px 0 rgba(0, 0, 0, 0.5);
+        }
+
+        .glass-card:hover::before {
+            left: 150%;
+        }
+
+        /* Seção KPI Topo */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .kpi-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .kpi-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .kpi-header i {
+            font-size: 1.2rem;
+            color: var(--brand-indigo);
+        }
+
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            display: flex;
+            align-items: baseline;
+            gap: 0.5rem;
+        }
+
+        .kpi-target {
+            font-size: 0.8rem;
+            color: var(--success);
+            background: rgba(0, 230, 118, 0.1);
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            width: fit-content;
+        }
+
+        /* Seção dos 5 Blocos (Grid Assimétrico) */
+        .strategic-blocks {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 1.5rem;
+        }
+
+        .block-card {
+            grid-column: span 4;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .block-large { grid-column: span 8; }
+        .block-medium { grid-column: span 6; }
+        .block-full { grid-column: span 12; display: flex; gap: 2rem; align-items: center;}
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .card-title i {
+            color: var(--brand-orange);
+            background: rgba(242, 114, 33, 0.1);
+            padding: 0.5rem;
+            border-radius: 12px;
+        }
+
+        /* Custom UI Elements para os Blocos */
+        .progress-bar-container {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            height: 8px;
+            margin-top: 0.5rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--brand-indigo), #7a63f1);
+            border-radius: 10px;
+            width: 0; /* Animado via JS */
+            transition: width 1.5s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .action-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .action-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 16px;
+            border-left: 4px solid var(--brand-indigo);
+            transition: 0.3s;
+        }
+
+        .action-item:hover {
+            background: rgba(255, 255, 255, 0.06);
+            transform: translateX(10px);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 250px;
+            width: 100%;
+        }
+
+        /* Responsividade */
+        @media (max-width: 1024px) {
+            .block-large, .block-medium { grid-column: span 12; }
+            .block-card { grid-column: span 6; }
+            .block-full { flex-direction: column; }
+        }
+
+        @media (max-width: 768px) {
+            .header-brand { flex-direction: column; align-items: flex-start; gap: 1rem; }
+            .block-card { grid-column: span 12; }
+            .kpi-value { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard">
+        <!-- HEADER COM A LOGO -->
+        <header class="fade-in">
+            <div class="header-brand">
+                <div class="logo-container">
+                    <img src="contacto.png" alt="Contacto Logo">
+                </div>
+                <div class="header-title">
+                    <h1>Visão Executiva</h1>
+                    <p>Dashboard de Monitoramento Estratégico</p>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <div style="text-align: right; display: none; @media(min-width: 768px){display: block;}">
+                    <div style="font-weight: 600;">Rose</div>
+                    <div style="font-size: 0.8rem; color: var(--brand-orange);">Gestora</div>
+                </div>
+                <img src="https://ui-avatars.com/api/?name=Rose&background=4a36b5&color=fff&rounded=true" alt="Perfil" style="width: 50px; border-radius: 50%; border: 2px solid var(--brand-orange);">
+            </div>
+        </header>
+
+        <!-- KPIS PRINCIPAIS -->
+        <section class="kpi-grid fade-in">
+            <div class="glass-card kpi-item">
+                <div class="kpi-header">
+                    <span>Cobertura de AEP</span>
+                    <i class="fa-solid fa-expand"></i>
+                </div>
+                <div class="kpi-value">
+                    <span class="counter" data-target="96">0</span>%
+                </div>
+                <div class="kpi-target">Alvo: > 95% das funções</div>
+            </div>
+            
+            <div class="glass-card kpi-item">
+                <div class="kpi-header">
+                    <span>Postos Críticos Ativos</span>
+                    <i class="fa-solid fa-triangle-exclamation" style="color: var(--danger);"></i>
+                </div>
+                <div class="kpi-value">
+                    <span class="counter" data-target="3">0</span>%
+                </div>
+                <div class="kpi-target">Alvo: < 5% do total</div>
+            </div>
+            
+            <div class="glass-card kpi-item">
+                <div class="kpi-header">
+                    <span>Atrasos (Risco Alto)</span>
+                    <i class="fa-regular fa-clock"></i>
+                </div>
+                <div class="kpi-value">
+                    <span class="counter" data-target="0">100</span>%
+                </div>
+                <div class="kpi-target">Alvo: 0% de atraso</div>
+            </div>
+            
+            <div class="glass-card kpi-item">
+                <div class="kpi-header">
+                    <span>Redução para Nível Verde</span>
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div class="kpi-value">
+                    <span class="counter" data-target="84">0</span>%
+                </div>
+                <div class="kpi-target">Alvo: > 80% intervenções</div>
+            </div>
+        </section>
+
+        <!-- OS 5 BLOCOS ESTRATÉGICOS -->
+        <section class="strategic-blocks">
+            
+            <!-- 1. Processos (AEP/AET) -->
+            <div class="glass-card block-card block-medium fade-in">
+                <h2 class="card-title"><i class="fa-solid fa-bars-progress"></i> 1. Processo e Produtividade</h2>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">Status de elaboração de AEP/AET</p>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                        <span>Setor Produtivo</span>
+                        <span>100% Concluído</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-fill" style="width: 100%;"></div>
+                    </div>
+                </div>
+                <div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                        <span>Setor Administrativo</span>
+                        <span>75% Em andamento</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-fill" data-width="75%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Risco Ergonômico (Diagnóstico) -->
+            <div class="glass-card block-card block-medium fade-in" style="transition-delay: 0.1s;">
+                <h2 class="card-title"><i class="fa-solid fa-chart-pie"></i> 2. Diagnóstico de Risco</h2>
+                <div class="chart-container">
+                    <canvas id="riscoChart"></canvas>
+                </div>
+            </div>
+
+            <!-- 3. Intervenção e Plano de Ação (5W2H) -->
+            <div class="glass-card block-card block-large fade-in" style="transition-delay: 0.2s;">
+                <h2 class="card-title"><i class="fa-solid fa-list-check"></i> 3. Plano de Ação e Intervenções</h2>
+                <ul class="action-list">
+                    <li class="action-item">
+                        <div>
+                            <strong style="display: block; margin-bottom: 0.3rem;">Adequação de Bancada (Linha A)</strong>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">Resp: Eng. Manutenção | Prazo: 25/09/2026</span>
+                        </div>
+                        <span style="background: rgba(0, 230, 118, 0.15); color: var(--success); padding: 0.4rem 0.8rem; border-radius: 8px; font-size: 0.8rem;">Em Execução</span>
+                    </li>
+                    <li class="action-item" style="border-left-color: var(--brand-orange);">
+                        <div>
+                            <strong style="display: block; margin-bottom: 0.3rem;">Rodízio de Tarefas (Embalagem)</strong>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">Resp: Liderança | Prazo: 30/09/2026</span>
+                        </div>
+                        <span style="background: rgba(242, 114, 33, 0.15); color: var(--brand-orange); padding: 0.4rem 0.8rem; border-radius: 8px; font-size: 0.8rem;">Planejado</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 4. Eficácia e 5. Epidemiológico -->
+            <div class="glass-card block-card block-full fade-in" style="transition-delay: 0.3s; background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(74, 54, 181, 0.08));">
+                <div style="flex: 1;">
+                    <h2 class="card-title"><i class="fa-solid fa-heart-pulse"></i> 4 e 5. Eficácia e Saúde (Desfecho)</h2>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
+                        Acompanhamento da eficácia das medidas implementadas refletidas diretamente nos indicadores epidemiológicos do ambulatório.
+                    </p>
+                    <div style="margin-top: 2rem; display: flex; gap: 2rem;">
+                        <div>
+                            <div style="font-size: 2.2rem; font-weight: 800; color: var(--success);">-42%</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">Queixas osteomusculares<br>neste trimestre</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 2.2rem; font-weight: 800; color: var(--brand-indigo);">98%</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">Eficácia atestada nas<br>validações pós-melhoria</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="flex: 1; min-width: 300px; height: 200px; position: relative;">
+                     <canvas id="eficaciaChart"></canvas>
+                </div>
+            </div>
+
+        </section>
+    </div>
+
+    <script>
+        // 1. Animação de Scroll (Fade In)
+        const observerOptions = { root: null, threshold: 0.1, rootMargin: "0px" };
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    
+                    const progressBars = entry.target.querySelectorAll('.progress-fill');
+                    progressBars.forEach(bar => {
+                        if(bar.getAttribute('data-width')) {
+                            setTimeout(() => {
+                                bar.style.width = bar.getAttribute('data-width');
+                            }, 400);
+                        }
+                    });
+                    
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+        // 2. Animação do Contador numérico
+        const counters = document.querySelectorAll('.counter');
+        const speed = 40; 
+        counters.forEach(counter => {
+            const updateCount = () => {
+                const target = +counter.getAttribute('data-target');
+                const count = +counter.innerText;
+                const inc = target / speed;
+                if (count < target) {
+                    counter.innerText = Math.ceil(count + inc);
+                    setTimeout(updateCount, 40);
+                } else {
+                    counter.innerText = target;
+                }
+            };
+            setTimeout(updateCount, 800);
+        });
+
+        // 3. Gráficos com Chart.js utilizando paleta da marca
+        Chart.defaults.color = '#8b92a5';
+        Chart.defaults.font.family = "'Outfit', sans-serif";
+
+        const ctxRisco = document.getElementById('riscoChart').getContext('2d');
+        new Chart(ctxRisco, {
+            type: 'doughnut',
+            data: {
+                labels: ['Baixo', 'Moderado', 'Alto', 'Crítico'],
+                datasets: [{
+                    data: [45, 30, 15, 10],
+                    // Verde, Amarelo, Laranja da Marca e Vermelho
+                    backgroundColor: ['#00e676', '#ffd60a', '#f27221', '#ff4b4b'],
+                    borderWidth: 0,
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '75%',
+                plugins: {
+                    legend: { position: 'right', labels: { boxWidth: 12, usePointStyle: true } }
+                }
+            }
+        });
+
+        const ctxEficacia = document.getElementById('eficaciaChart').getContext('2d');
+        let gradientLine = ctxEficacia.createLinearGradient(0, 0, 0, 400);
+        // Gradiente usando a cor Índigo da marca
+        gradientLine.addColorStop(0, 'rgba(74, 54, 181, 0.5)');
+        gradientLine.addColorStop(1, 'rgba(74, 54, 181, 0.0)');
+
+        new Chart(ctxEficacia, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+                datasets: [{
+                    label: 'Queixas Registradas',
+                    data: [65, 59, 40, 31, 22, 18],
+                    borderColor: '#4a36b5', // Índigo da marca
+                    backgroundColor: gradientLine,
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#090a0f',
+                    pointBorderColor: '#4a36b5',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
