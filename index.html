@@ -1,486 +1,473 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contacto | Gestão Ergonômica</title>
-    
-    <!-- Ícone da guia do navegador (Favicon) -->
+    <title>Contacto | Dashboard VISÃO LTDA</title>
     <link rel="icon" href="contacto.png" type="image/png">
     
     <!-- Fontes e Ícones -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Chart.js para os gráficos -->
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            bg: '#09090b', /* Fundo ultra-dark da imagem */
+                            card: '#121215', /* Cor dos cards */
+                            cardHover: '#18181c',
+                            border: 'rgba(255, 255, 255, 0.06)',
+                            indigo: '#4a36b5',
+                            orange: '#f27221',
+                        }
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: 0, transform: 'translateY(15px)' },
+                            '100%': { opacity: 1, transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <style>
-        :root {
-            /* Cores baseadas na Logo Contacto */
-            --bg-color: #090a0f;
-            --glass-bg: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.05);
-            --text-main: #f8f8f2;
-            --text-muted: #8b92a5;
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .glass-panel {
+                @apply bg-brand-card border border-brand-border rounded-2xl transition-all duration-300 shadow-lg;
+            }
+            .glass-panel:hover {
+                @apply bg-brand-cardHover border-white/10;
+            }
+            .badge-impact-high { @apply bg-red-950/40 text-red-400 border border-red-500/20 px-2 py-0.5 rounded text-xs font-semibold; }
+            .badge-impact-med { @apply bg-orange-950/40 text-orange-400 border border-orange-500/20 px-2 py-0.5 rounded text-xs font-semibold; }
+            .badge-impact-low { @apply bg-yellow-950/40 text-yellow-400 border border-yellow-500/20 px-2 py-0.5 rounded text-xs font-semibold; }
             
-            /* Identidade Visual Contacto */
-            --brand-indigo: #4a36b5; /* Tom iluminado do Azul Escuro da logo */
-            --brand-orange: #f27221; /* Laranja da logo */
-            
-            --danger: #ff4b4b;
-            --success: #00e676;
-            --warning: #ffd60a;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Outfit', sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            background-image: 
-                radial-gradient(circle at 10% 40%, rgba(74, 54, 181, 0.12), transparent 30%),
-                radial-gradient(circle at 90% 20%, rgba(242, 114, 33, 0.08), transparent 30%);
-            background-attachment: fixed;
-            color: var(--text-main);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* Animação de entrada (Scroll e Load) */
-        .fade-in {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .fade-in.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .dashboard {
-            max-width: 1600px;
-            margin: 0 auto;
-            padding: 2rem;
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
-        }
-
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--glass-border);
-        }
-
-        .header-brand {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-        }
-
-        .logo-container {
-            background-color: #ffffff;
-            padding: 0.5rem 1.2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-
-        .logo-container img {
-            height: 45px;
-            object-fit: contain;
-            display: block;
-        }
-
-        .header-title h1 {
-            font-size: 1.8rem;
-            font-weight: 800;
-            background: linear-gradient(to right, #fff, var(--text-muted));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .header-title p {
-            color: var(--brand-orange);
-            font-weight: 400;
-            margin-top: 0.2rem;
-            font-size: 0.9rem;
-        }
-
-        /* Glassmorphism Cards */
-        .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 1.8rem;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.4s ease;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-        }
-
-        .glass-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%;
-            width: 50%; height: 100%;
-            background: linear-gradient(to right, transparent, rgba(255,255,255,0.03), transparent);
-            transform: skewX(-25deg);
-            transition: 0.5s;
-        }
-
-        .glass-card:hover {
-            transform: translateY(-5px) scale(1.01);
-            border-color: rgba(74, 54, 181, 0.3);
-            box-shadow: 0 15px 40px 0 rgba(0, 0, 0, 0.5);
-        }
-
-        .glass-card:hover::before {
-            left: 150%;
-        }
-
-        /* Seção KPI Topo */
-        .kpi-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .kpi-item {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .kpi-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-
-        .kpi-header i {
-            font-size: 1.2rem;
-            color: var(--brand-indigo);
-        }
-
-        .kpi-value {
-            font-size: 2.5rem;
-            font-weight: 800;
-            display: flex;
-            align-items: baseline;
-            gap: 0.5rem;
-        }
-
-        .kpi-target {
-            font-size: 0.8rem;
-            color: var(--success);
-            background: rgba(0, 230, 118, 0.1);
-            padding: 0.2rem 0.6rem;
-            border-radius: 20px;
-            width: fit-content;
-        }
-
-        /* Seção dos 5 Blocos (Grid Assimétrico) */
-        .strategic-blocks {
-            display: grid;
-            grid-template-columns: repeat(12, 1fr);
-            gap: 1.5rem;
-        }
-
-        .block-card {
-            grid-column: span 4;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .block-large { grid-column: span 8; }
-        .block-medium { grid-column: span 6; }
-        .block-full { grid-column: span 12; display: flex; gap: 2rem; align-items: center;}
-
-        .card-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-        }
-
-        .card-title i {
-            color: var(--brand-orange);
-            background: rgba(242, 114, 33, 0.1);
-            padding: 0.5rem;
-            border-radius: 12px;
-        }
-
-        /* Custom UI Elements para os Blocos */
-        .progress-bar-container {
-            width: 100%;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-            height: 8px;
-            margin-top: 0.5rem;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--brand-indigo), #7a63f1);
-            border-radius: 10px;
-            width: 0; /* Animado via JS */
-            transition: width 1.5s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-
-        .action-list {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .action-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 1rem;
-            background: rgba(255, 255, 255, 0.02);
-            border-radius: 16px;
-            border-left: 4px solid var(--brand-indigo);
-            transition: 0.3s;
-        }
-
-        .action-item:hover {
-            background: rgba(255, 255, 255, 0.06);
-            transform: translateX(10px);
-        }
-
-        .chart-container {
-            position: relative;
-            height: 250px;
-            width: 100%;
-        }
-
-        /* Responsividade */
-        @media (max-width: 1024px) {
-            .block-large, .block-medium { grid-column: span 12; }
-            .block-card { grid-column: span 6; }
-            .block-full { flex-direction: column; }
-        }
-
-        @media (max-width: 768px) {
-            .header-brand { flex-direction: column; align-items: flex-start; gap: 1rem; }
-            .block-card { grid-column: span 12; }
-            .kpi-value { font-size: 2rem; }
+            /* Custom Scrollbar */
+            ::-webkit-scrollbar { width: 6px; height: 6px; }
+            ::-webkit-scrollbar-track { background: transparent; }
+            ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+            ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
         }
     </style>
 </head>
-<body>
+<body class="bg-brand-bg text-slate-200 min-h-screen overflow-x-hidden selection:bg-brand-orange selection:text-white font-sans">
 
-    <div class="dashboard">
-        <!-- HEADER COM A LOGO -->
-        <header class="fade-in">
-            <div class="header-brand">
-                <div class="logo-container">
-                    <img src="contacto.png" alt="Contacto Logo">
+    <!-- Glows de fundo sutis -->
+    <div class="fixed w-full h-full top-0 left-0 -z-10 overflow-hidden pointer-events-none">
+        <div class="absolute top-[-15%] left-[-5%] w-[40rem] h-[40rem] bg-brand-indigo/10 rounded-full mix-blend-screen filter blur-[120px]"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[30rem] h-[30rem] bg-brand-orange/5 rounded-full mix-blend-screen filter blur-[120px]"></div>
+    </div>
+
+    <div class="max-w-[1600px] mx-auto p-4 md:p-6 lg:p-8 flex flex-col gap-8">
+        
+        <!-- HEADER (Fiel à imagem 1) -->
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 animate-fade-in-up">
+            <div class="flex items-center gap-4">
+                <div class="bg-white p-3 rounded-2xl shadow-lg">
+                    <img src="contacto.png" alt="Logo" class="h-8 object-contain">
                 </div>
-                <div class="header-title">
-                    <h1>Visão Executiva</h1>
-                    <p>Dashboard de Monitoramento Estratégico</p>
+                <div>
+                    <h1 class="text-2xl font-bold text-white tracking-tight">VISÃO LTDA</h1>
+                    <p class="text-brand-orange font-medium text-sm flex items-center gap-2">
+                        <span class="w-1.5 h-1.5 rounded-full bg-brand-orange"></span>
+                        Indústria de Artefatos Plásticos
+                    </p>
                 </div>
             </div>
-            <div style="display: flex; align-items: center; gap: 1rem;">
-                <div style="text-align: right; display: none; @media(min-width: 768px){display: block;}">
-                    <div style="font-weight: 600;">Rose</div>
-                    <div style="font-size: 0.8rem; color: var(--brand-orange);">Gestora</div>
+
+            <div class="flex items-center gap-4 w-full md:w-auto">
+                <div class="relative w-full md:w-64 hidden sm:block">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
+                    <input type="text" placeholder="Buscar postos, NRs..." class="w-full bg-[#161619] border border-white/5 rounded-full py-2.5 pl-11 pr-4 focus:outline-none focus:border-brand-indigo transition-colors text-sm text-gray-300 placeholder-gray-600">
                 </div>
-                <img src="https://ui-avatars.com/api/?name=Rose&background=4a36b5&color=fff&rounded=true" alt="Perfil" style="width: 50px; border-radius: 50%; border: 2px solid var(--brand-orange);">
+                
+                <div class="flex items-center gap-3 bg-[#161619] border border-white/5 rounded-full py-1.5 pl-1.5 pr-4 hover:bg-white/5 transition-all cursor-pointer">
+                    <div class="w-9 h-9 rounded-full bg-brand-indigo flex items-center justify-center text-white font-bold text-xs border border-brand-indigo">
+                        RO
+                    </div>
+                    <div class="text-right leading-tight">
+                        <p class="text-sm font-semibold text-white">Rose</p>
+                        <p class="text-[10px] text-gray-400">Gestora SESMT</p>
+                    </div>
+                    <i class="fa-solid fa-chevron-down text-xs text-gray-500 ml-1"></i>
+                </div>
             </div>
         </header>
 
-        <!-- KPIS PRINCIPAIS -->
-        <section class="kpi-grid fade-in">
-            <div class="glass-card kpi-item">
-                <div class="kpi-header">
-                    <span>Cobertura de AEP</span>
-                    <i class="fa-solid fa-expand"></i>
-                </div>
-                <div class="kpi-value">
-                    <span class="counter" data-target="96">0</span>%
-                </div>
-                <div class="kpi-target">Alvo: > 95% das funções</div>
-            </div>
-            
-            <div class="glass-card kpi-item">
-                <div class="kpi-header">
-                    <span>Postos Críticos Ativos</span>
-                    <i class="fa-solid fa-triangle-exclamation" style="color: var(--danger);"></i>
-                </div>
-                <div class="kpi-value">
-                    <span class="counter" data-target="3">0</span>%
-                </div>
-                <div class="kpi-target">Alvo: < 5% do total</div>
-            </div>
-            
-            <div class="glass-card kpi-item">
-                <div class="kpi-header">
-                    <span>Atrasos (Risco Alto)</span>
-                    <i class="fa-regular fa-clock"></i>
-                </div>
-                <div class="kpi-value">
-                    <span class="counter" data-target="0">100</span>%
-                </div>
-                <div class="kpi-target">Alvo: 0% de atraso</div>
-            </div>
-            
-            <div class="glass-card kpi-item">
-                <div class="kpi-header">
-                    <span>Redução para Nível Verde</span>
-                    <i class="fa-solid fa-shield-halved"></i>
-                </div>
-                <div class="kpi-value">
-                    <span class="counter" data-target="84">0</span>%
-                </div>
-                <div class="kpi-target">Alvo: > 80% intervenções</div>
-            </div>
-        </section>
+        <!-- NAVEGAÇÃO -->
+        <nav class="flex gap-6 border-b border-white/10 opacity-0 animate-fade-in-up" style="animation-delay: 100ms;">
+            <button onclick="switchTab('executivo')" id="btn-executivo" class="tab-btn active pb-3 font-medium text-sm transition-all duration-300 border-b-2 border-brand-orange text-white">
+                <i class="fa-solid fa-chart-pie mr-2 text-brand-orange opacity-80"></i> Painel Executivo
+            </button>
+            <button onclick="switchTab('diagnostico')" id="btn-diagnostico" class="tab-btn pb-3 font-medium text-sm text-gray-500 hover:text-gray-300 transition-all duration-300 border-b-2 border-transparent">
+                <i class="fa-solid fa-clipboard-list mr-2 opacity-80"></i> Diagnóstico & Priorização
+            </button>
+            <button onclick="switchTab('plano')" id="btn-plano" class="tab-btn pb-3 font-medium text-sm text-gray-500 hover:text-gray-300 transition-all duration-300 border-b-2 border-transparent">
+                <i class="fa-solid fa-list-check mr-2 opacity-80"></i> Plano de Ação (NR-01/17)
+            </button>
+        </nav>
 
-        <!-- OS 5 BLOCOS ESTRATÉGICOS -->
-        <section class="strategic-blocks">
-            
-            <!-- 1. Processos (AEP/AET) -->
-            <div class="glass-card block-card block-medium fade-in">
-                <h2 class="card-title"><i class="fa-solid fa-bars-progress"></i> 1. Processo e Produtividade</h2>
-                <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">Status de elaboração de AEP/AET</p>
+        <!-- CONTEÚDO PRINCIPAL -->
+        <main class="relative min-h-[700px]">
+
+            <!-- ================= ABA 1: PAINEL EXECUTIVO (Gráficos) ================= -->
+            <div id="tab-executivo" class="tab-content block space-y-6 absolute w-full top-0 left-0 transition-all duration-500">
+                <!-- 4 KPIs -->
+                <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-in-up">
+                    <div class="glass-panel p-5">
+                        <div class="flex justify-between items-center text-sm text-gray-400 mb-2"><span>Cobertura de AEP</span><i class="fa-solid fa-expand text-brand-indigo"></i></div>
+                        <div class="text-3xl font-bold text-white flex items-baseline gap-1"><span class="counter" data-target="96">0</span>%</div>
+                        <div class="mt-2 text-xs text-green-500">Alvo: > 95%</div>
+                    </div>
+                    <div class="glass-panel p-5">
+                        <div class="flex justify-between items-center text-sm text-gray-400 mb-2"><span>Postos Críticos</span><i class="fa-solid fa-triangle-exclamation text-red-500"></i></div>
+                        <div class="text-3xl font-bold text-white flex items-baseline gap-1"><span class="counter" data-target="3">0</span>%</div>
+                        <div class="mt-2 text-xs text-green-500">Alvo: < 5%</div>
+                    </div>
+                    <div class="glass-panel p-5">
+                        <div class="flex justify-between items-center text-sm text-gray-400 mb-2"><span>Atrasos (Risco Alto)</span><i class="fa-regular fa-clock text-yellow-500"></i></div>
+                        <div class="text-3xl font-bold text-white flex items-baseline gap-1"><span class="counter" data-target="0">100</span>%</div>
+                        <div class="mt-2 text-xs text-green-500">Alvo: 0%</div>
+                    </div>
+                    <div class="glass-panel p-5">
+                        <div class="flex justify-between items-center text-sm text-gray-400 mb-2"><span>Redução de Risco</span><i class="fa-solid fa-shield-halved text-green-500"></i></div>
+                        <div class="text-3xl font-bold text-white flex items-baseline gap-1"><span class="counter" data-target="84">0</span>%</div>
+                        <div class="mt-2 text-xs text-green-500">Alvo: > 80%</div>
+                    </div>
+                </section>
+
+                <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fade-in-up">
+                    <div class="glass-panel p-6">
+                        <h2 class="text-base font-semibold mb-6 text-white flex items-center gap-2"><i class="fa-solid fa-bars-progress text-brand-orange"></i> Status por Setor (AEP/AET)</h2>
+                        <div class="space-y-6">
+                            <div>
+                                <div class="flex justify-between text-sm mb-2"><span class="text-gray-300">Injetora / Personalização</span><span class="text-white">100% Concluído</span></div>
+                                <div class="w-full bg-white/5 rounded-full h-1.5"><div class="bg-brand-indigo h-1.5 rounded-full progress-fill" style="width: 100%;"></div></div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-2"><span class="text-gray-300">Acabamento / Estoque</span><span class="text-white">75% Em andamento</span></div>
+                                <div class="w-full bg-white/5 rounded-full h-1.5"><div class="bg-brand-indigo h-1.5 rounded-full progress-fill w-0" data-width="75%"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="glass-panel p-6">
+                        <h2 class="text-base font-semibold mb-2 text-white flex items-center gap-2"><i class="fa-solid fa-chart-pie text-brand-orange"></i> Diagnóstico de Risco</h2>
+                        <div class="relative h-48 w-full flex justify-center"><canvas id="riscoChart"></canvas></div>
+                    </div>
+                </section>
+
+                <section class="glass-panel p-6 animate-fade-in-up">
+                    <h2 class="text-base font-semibold mb-6 text-white flex items-center gap-2"><i class="fa-solid fa-building text-brand-orange"></i> Comparativo de Risco por Setor</h2>
+                    <div class="relative h-64 w-full"><canvas id="setorChart"></canvas></div>
+                </section>
+            </div>
+
+            <!-- ================= ABA 2: DIAGNÓSTICO & PRIORIZAÇÃO (Fiel à imagem 1) ================= -->
+            <div id="tab-diagnostico" class="tab-content hidden space-y-6 absolute w-full top-0 left-0 transition-all duration-500 opacity-0 translate-y-10">
                 
-                <div style="margin-bottom: 1.5rem;">
-                    <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
-                        <span>Setor Produtivo</span>
-                        <span>100% Concluído</span>
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                    <!-- Setores Avaliados -->
+                    <div class="md:col-span-8 glass-panel p-6">
+                        <h3 class="text-gray-300 font-medium mb-4 flex items-center gap-2"><i class="fa-solid fa-industry text-brand-orange"></i> Setores Avaliados</h3>
+                        <div class="flex flex-wrap gap-3">
+                            <span class="px-4 py-1.5 bg-transparent border border-white/10 rounded-full text-sm text-gray-300">Acabamento</span>
+                            <span class="px-4 py-1.5 bg-transparent border border-white/10 rounded-full text-sm text-gray-300">Personalização</span>
+                            <span class="px-4 py-1.5 bg-transparent border border-white/10 rounded-full text-sm text-gray-300">Injetora</span>
+                            <span class="px-4 py-1.5 bg-transparent border border-white/10 rounded-full text-sm text-gray-300">Estoque</span>
+                        </div>
                     </div>
-                    <div class="progress-bar-container">
-                        <div class="progress-fill" style="width: 100%;"></div>
+                    
+                    <!-- Risco Principal -->
+                    <div class="md:col-span-4 glass-panel p-6 border-l-2 border-l-red-500">
+                        <h3 class="text-gray-300 font-medium mb-2 flex items-center gap-2"><i class="fa-solid fa-heart-pulse text-red-500"></i> Risco Potencial Principal</h3>
+                        <p class="text-3xl font-bold text-white mt-1">DORT / Fadiga</p>
+                        <p class="text-xs text-gray-400 mt-2">Foco: Ombros, Lombar, Punhos e Cervical</p>
                     </div>
                 </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Diagnóstico List -->
+                    <div class="lg:col-span-5 glass-panel p-6">
+                        <h2 class="text-lg font-bold text-white mb-6 flex items-center gap-2">
+                            <span class="w-8 h-8 rounded bg-brand-indigo/20 flex items-center justify-center"><i class="fa-solid fa-triangle-exclamation text-brand-indigo"></i></span>
+                            Diagnóstico Ergonômico
+                        </h2>
+                        <ul class="space-y-6">
+                            <li class="flex items-start gap-4">
+                                <i class="fa-solid fa-circle-exclamation text-red-400 mt-1"></i>
+                                <div><strong class="block text-white text-sm">Repetitividade elevada</strong></div>
+                            </li>
+                            <li class="flex items-start gap-4">
+                                <i class="fa-solid fa-person-arrow-up-from-line text-brand-orange mt-1"></i>
+                                <div><strong class="block text-white text-sm">Permanência prolongada em postura fixa</strong></div>
+                            </li>
+                            <li class="flex items-start gap-4">
+                                <i class="fa-solid fa-dumbbell text-yellow-400 mt-1"></i>
+                                <div><strong class="block text-white text-sm">Sobrecarga biomecânica em membros superiores</strong></div>
+                            </li>
+                            <li class="flex items-start gap-4">
+                                <i class="fa-solid fa-chair text-brand-indigo mt-1"></i>
+                                <div>
+                                    <strong class="block text-white text-sm">Exigência postural inadequada</strong>
+                                    <span class="text-xs text-gray-500 mt-1 block">Ausência de alternância postural frequente</span>
+                                </div>
+                            </li>
+                            <li class="flex items-start gap-4">
+                                <i class="fa-solid fa-boxes-stacked text-blue-400 mt-1"></i>
+                                <div>
+                                    <strong class="block text-white text-sm">Manuseio de materiais e inspeção</strong>
+                                    <span class="text-xs text-gray-500 mt-1 block">Atividade presente em todos os setores</span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Matriz de Priorização -->
+                    <div class="lg:col-span-7 glass-panel p-6">
+                        <h2 class="text-lg font-bold text-white mb-6 flex items-center gap-2">
+                            <span class="w-8 h-8 rounded bg-orange-500/20 flex items-center justify-center"><i class="fa-solid fa-arrow-down-short-wide text-brand-orange"></i></span>
+                            Matriz de Priorização
+                        </h2>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead>
+                                    <tr class="text-gray-400 text-xs border-b border-white/5">
+                                        <th class="pb-3 font-normal">Ação Recomendada</th>
+                                        <th class="pb-3 font-normal">Impacto</th>
+                                        <th class="pb-3 font-normal">Complexidade</th>
+                                        <th class="pb-3 font-normal">Foco Principal</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-sm">
+                                    <tr class="border-b border-white/5">
+                                        <td class="py-4 text-white">Adotar auxílios mecânicos de carga</td>
+                                        <td class="py-4"><span class="badge-impact-high">Altíssimo</span></td>
+                                        <td class="py-4 text-gray-300 text-xs">Média/Alta</td>
+                                        <td class="py-4 text-gray-400 text-xs">Coluna Lombar e Ombros</td>
+                                    </tr>
+                                    <tr class="border-b border-white/5">
+                                        <td class="py-4 text-white">Implementar pausas e rodízio</td>
+                                        <td class="py-4"><span class="badge-impact-med">Alto</span></td>
+                                        <td class="py-4 text-gray-300 text-xs">Baixa</td>
+                                        <td class="py-4 text-gray-400 text-xs">Geral (Fadiga)</td>
+                                    </tr>
+                                    <tr class="border-b border-white/5">
+                                        <td class="py-4 text-white">Redesenhar postos de inspeção altos</td>
+                                        <td class="py-4"><span class="badge-impact-med">Alto</span></td>
+                                        <td class="py-4 text-gray-300 text-xs">Média/Alta</td>
+                                        <td class="py-4 text-gray-400 text-xs">Ombros e Cervical</td>
+                                    </tr>
+                                    <tr class="border-b border-white/5">
+                                        <td class="py-4 text-white">Ginástica laboral focada</td>
+                                        <td class="py-4"><span class="badge-impact-low">Médio</span></td>
+                                        <td class="py-4 text-gray-300 text-xs">Baixa</td>
+                                        <td class="py-4 text-gray-400 text-xs">Cervical, Punhos e Lombar</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-4 text-white">Instalar tapetes antifadiga / banquetas</td>
+                                        <td class="py-4"><span class="badge-impact-low">Médio</span></td>
+                                        <td class="py-4 text-gray-300 text-xs">Baixa</td>
+                                        <td class="py-4 text-gray-400 text-xs">Membros Inferiores e Lombar</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= ABA 3: PLANO DE AÇÃO (Fiel à imagem 2) ================= -->
+            <div id="tab-plano" class="tab-content hidden space-y-8 absolute w-full top-0 left-0 transition-all duration-500 opacity-0 translate-y-10">
+                
+                <div class="glass-panel p-6 md:p-8">
+                    <div class="flex justify-between items-start mb-8">
+                        <div>
+                            <h2 class="text-xl font-bold text-white">Plano de Ação Ergonômico Corretivo</h2>
+                            <p class="text-sm text-gray-400 mt-1">Adequação Normativa NR 17 e NR01 (PGR)</p>
+                        </div>
+                        <button class="bg-transparent border border-white/20 hover:bg-white/10 text-white px-4 py-2 rounded-lg text-sm transition-colors flex items-center gap-2">
+                            <i class="fa-solid fa-download"></i> Exportar PDF
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse" style="border-spacing: 0 10px; border-collapse: separate;">
+                            <thead>
+                                <tr class="text-gray-400 text-[11px] uppercase tracking-wider">
+                                    <th class="px-6 py-2 font-normal">Fator de Risco Detectado (NR-17)</th>
+                                    <th class="px-6 py-2 font-normal">Região Crítica</th>
+                                    <th class="px-6 py-2 font-normal">Ação Corretiva</th>
+                                    <th class="px-6 py-2 font-normal">Tipo de Controle (NR-01)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm text-gray-300">
+                                <!-- Linha Azul -->
+                                <tr>
+                                    <td class="px-6 py-5 bg-[#161619] border-l-4 border-blue-500 rounded-l-xl font-medium text-white">Repetitividade elevada e sobrecarga</td>
+                                    <td class="px-6 py-5 bg-[#161619]">Ombros, punhos e cervical</td>
+                                    <td class="px-6 py-5 bg-[#161619]">Pausas de 10 min a cada 50 min. Definição de matriz de rodízio.</td>
+                                    <td class="px-6 py-5 bg-[#161619] rounded-r-xl">
+                                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-900/30 text-blue-400 border border-blue-500/20 rounded-lg text-xs font-semibold whitespace-nowrap">
+                                            <i class="fa-solid fa-users-gear"></i> Administrativa / Organizacional
+                                        </span>
+                                    </td>
+                                </tr>
+                                <!-- Linha Amarela -->
+                                <tr>
+                                    <td class="px-6 py-5 bg-[#161619] border-l-4 border-yellow-500 rounded-l-xl font-medium text-white">Permanência em postura fixa em pé</td>
+                                    <td class="px-6 py-5 bg-[#161619]">Coluna lombar e inferiores</td>
+                                    <td class="px-6 py-5 bg-[#161619]">Assentos de descanso (semi-sentado) e tapetes antifadiga.</td>
+                                    <td class="px-6 py-5 bg-[#161619] rounded-r-xl">
+                                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-yellow-900/30 text-yellow-400 border border-yellow-500/20 rounded-lg text-xs font-semibold whitespace-nowrap">
+                                            <i class="fa-solid fa-shield-halved"></i> Proteção Coletiva (EPC)
+                                        </span>
+                                    </td>
+                                </tr>
+                                <!-- Linha Verde -->
+                                <tr>
+                                    <td class="px-6 py-5 bg-[#161619] border-l-4 border-green-500 rounded-l-xl font-medium text-white">Manuseio manual de materiais</td>
+                                    <td class="px-6 py-5 bg-[#161619]">Coluna lombar e ombros</td>
+                                    <td class="px-6 py-5 bg-[#161619]">Dispositivos mecânicos de carga (talhas, carrinhos).</td>
+                                    <td class="px-6 py-5 bg-[#161619] rounded-r-xl">
+                                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-900/30 text-green-400 border border-green-500/20 rounded-lg text-xs font-semibold whitespace-nowrap">
+                                            <i class="fa-solid fa-gears"></i> Engenharia / Eliminação
+                                        </span>
+                                    </td>
+                                </tr>
+                                <!-- Linha Verde (Layout) -->
+                                <tr>
+                                    <td class="px-6 py-5 bg-[#161619] border-l-4 border-green-500 rounded-l-xl font-medium text-white">Exigência postural na inspeção</td>
+                                    <td class="px-6 py-5 bg-[#161619]">Região cervical e ombros</td>
+                                    <td class="px-6 py-5 bg-[#161619]">Redesenho de layout (painéis na altura dos olhos e alcance ótimo).</td>
+                                    <td class="px-6 py-5 bg-[#161619] rounded-r-xl">
+                                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-900/30 text-green-400 border border-green-500/20 rounded-lg text-xs font-semibold whitespace-nowrap">
+                                            <i class="fa-solid fa-ruler-combined"></i> Engenharia (Layout)
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Próximos Passos (Cards) -->
                 <div>
-                    <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
-                        <span>Setor Administrativo</span>
-                        <span>75% Em andamento</span>
-                    </div>
-                    <div class="progress-bar-container">
-                        <div class="progress-fill" data-width="75%"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 2. Risco Ergonômico (Diagnóstico) -->
-            <div class="glass-card block-card block-medium fade-in" style="transition-delay: 0.1s;">
-                <h2 class="card-title"><i class="fa-solid fa-chart-pie"></i> 2. Diagnóstico de Risco</h2>
-                <div class="chart-container">
-                    <canvas id="riscoChart"></canvas>
-                </div>
-            </div>
-
-            <!-- 3. Intervenção e Plano de Ação (5W2H) -->
-            <div class="glass-card block-card block-large fade-in" style="transition-delay: 0.2s;">
-                <h2 class="card-title"><i class="fa-solid fa-list-check"></i> 3. Plano de Ação e Intervenções</h2>
-                <ul class="action-list">
-                    <li class="action-item">
-                        <div>
-                            <strong style="display: block; margin-bottom: 0.3rem;">Adequação de Bancada (Linha A)</strong>
-                            <span style="font-size: 0.8rem; color: var(--text-muted);">Resp: Eng. Manutenção | Prazo: 25/09/2026</span>
+                    <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2"><i class="fa-solid fa-shoe-prints text-brand-orange"></i> Próximos Passos (NR-01)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="glass-panel p-6 relative overflow-hidden">
+                            <i class="fa-solid fa-calendar-days absolute top-4 right-4 text-4xl opacity-[0.03] text-white"></i>
+                            <h4 class="font-bold text-white mb-2 text-base">Cronograma</h4>
+                            <p class="text-[13px] text-gray-400 leading-relaxed">Prazos específicos (Curto, Médio e Longo prazo) definidos para cada alteração física ou administrativa aprovada.</p>
                         </div>
-                        <span style="background: rgba(0, 230, 118, 0.15); color: var(--success); padding: 0.4rem 0.8rem; border-radius: 8px; font-size: 0.8rem;">Em Execução</span>
-                    </li>
-                    <li class="action-item" style="border-left-color: var(--brand-orange);">
-                        <div>
-                            <strong style="display: block; margin-bottom: 0.3rem;">Rodízio de Tarefas (Embalagem)</strong>
-                            <span style="font-size: 0.8rem; color: var(--text-muted);">Resp: Liderança | Prazo: 30/09/2026</span>
+                        <div class="glass-panel p-6 relative overflow-hidden">
+                            <i class="fa-solid fa-user-tie absolute top-4 right-4 text-4xl opacity-[0.03] text-white"></i>
+                            <h4 class="font-bold text-white mb-2 text-base">Responsáveis</h4>
+                            <p class="text-[13px] text-gray-400 leading-relaxed">Indicação formal dos gestores (Engenharia, Manutenção, SESMT) focados em implementar cada linha de ação.</p>
                         </div>
-                        <span style="background: rgba(242, 114, 33, 0.15); color: var(--brand-orange); padding: 0.4rem 0.8rem; border-radius: 8px; font-size: 0.8rem;">Planejado</span>
-                    </li>
-                </ul>
-            </div>
-
-            <!-- 4. Eficácia e 5. Epidemiológico -->
-            <div class="glass-card block-card block-full fade-in" style="transition-delay: 0.3s; background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(74, 54, 181, 0.08));">
-                <div style="flex: 1;">
-                    <h2 class="card-title"><i class="fa-solid fa-heart-pulse"></i> 4 e 5. Eficácia e Saúde (Desfecho)</h2>
-                    <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
-                        Acompanhamento da eficácia das medidas implementadas refletidas diretamente nos indicadores epidemiológicos do ambulatório.
-                    </p>
-                    <div style="margin-top: 2rem; display: flex; gap: 2rem;">
-                        <div>
-                            <div style="font-size: 2.2rem; font-weight: 800; color: var(--success);">-42%</div>
-                            <div style="font-size: 0.8rem; color: var(--text-muted);">Queixas osteomusculares<br>neste trimestre</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 2.2rem; font-weight: 800; color: var(--brand-indigo);">98%</div>
-                            <div style="font-size: 0.8rem; color: var(--text-muted);">Eficácia atestada nas<br>validações pós-melhoria</div>
+                        <div class="glass-panel p-6 relative overflow-hidden">
+                            <i class="fa-solid fa-microscope absolute top-4 right-4 text-4xl opacity-[0.03] text-white"></i>
+                            <h4 class="font-bold text-white mb-2 text-base">Avaliação de Eficácia</h4>
+                            <p class="text-[13px] text-gray-400 leading-relaxed">Agendamento de nova AEP após 6 meses para validar a redução dos índices de fadiga e queixas de DORT.</p>
                         </div>
                     </div>
                 </div>
-                <div style="flex: 1; min-width: 300px; height: 200px; position: relative;">
-                     <canvas id="eficaciaChart"></canvas>
-                </div>
             </div>
 
-        </section>
+        </main>
     </div>
 
+    <!-- SCRIPTS -->
     <script>
-        // 1. Animação de Scroll (Fade In)
-        const observerOptions = { root: null, threshold: 0.1, rootMargin: "0px" };
-        const observer = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                    
-                    const progressBars = entry.target.querySelectorAll('.progress-fill');
-                    progressBars.forEach(bar => {
-                        if(bar.getAttribute('data-width')) {
-                            setTimeout(() => {
-                                bar.style.width = bar.getAttribute('data-width');
-                            }, 400);
-                        }
-                    });
-                    
-                    observer.unobserve(entry.target);
+        // Lógica de Abas
+        function switchTab(tabId) {
+            const tabs = ['executivo', 'diagnostico', 'plano'];
+            
+            tabs.forEach(id => {
+                const btn = document.getElementById(`btn-${id}`);
+                const icon = btn.querySelector('i');
+                if(id === tabId) {
+                    btn.classList.add('border-brand-orange', 'text-white');
+                    btn.classList.remove('border-transparent', 'text-gray-500');
+                    icon.classList.add('text-brand-orange');
+                } else {
+                    btn.classList.remove('border-brand-orange', 'text-white');
+                    btn.classList.add('border-transparent', 'text-gray-500');
+                    icon.classList.remove('text-brand-orange');
                 }
             });
-        }, observerOptions);
 
-        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
-
-        // 2. Animação do Contador numérico
-        const counters = document.querySelectorAll('.counter');
-        const speed = 40; 
-        counters.forEach(counter => {
-            const updateCount = () => {
-                const target = +counter.getAttribute('data-target');
-                const count = +counter.innerText;
-                const inc = target / speed;
-                if (count < target) {
-                    counter.innerText = Math.ceil(count + inc);
-                    setTimeout(updateCount, 40);
-                } else {
-                    counter.innerText = target;
+            tabs.forEach(id => {
+                const el = document.getElementById(`tab-${id}`);
+                if (id !== tabId && !el.classList.contains('hidden')) {
+                    el.classList.remove('opacity-100', 'translate-y-0');
+                    el.classList.add('opacity-0', 'translate-y-10');
+                    setTimeout(() => {
+                        el.classList.add('hidden');
+                        el.classList.remove('block');
+                    }, 300); 
                 }
-            };
-            setTimeout(updateCount, 800);
+            });
+
+            const activeEl = document.getElementById(`tab-${tabId}`);
+            setTimeout(() => {
+                activeEl.classList.remove('hidden');
+                activeEl.classList.add('block');
+                setTimeout(() => {
+                    activeEl.classList.remove('opacity-0', 'translate-y-10');
+                    activeEl.classList.add('opacity-100', 'translate-y-0');
+                    
+                    if(tabId === 'executivo') triggerProgressBars();
+                }, 50);
+            }, 300);
+        }
+
+        function triggerProgressBars() {
+            const bars = document.querySelectorAll('.progress-fill');
+            bars.forEach(bar => {
+                if(bar.getAttribute('data-width')) {
+                    bar.style.width = '0%'; 
+                    setTimeout(() => { bar.style.width = bar.getAttribute('data-width'); }, 100);
+                }
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            triggerProgressBars();
+            const counters = document.querySelectorAll('.counter');
+            counters.forEach(counter => {
+                const target = +counter.getAttribute('data-target');
+                const updateCount = () => {
+                    const count = +counter.innerText;
+                    const inc = target / 40;
+                    if (count < target) {
+                        counter.innerText = Math.ceil(count + inc);
+                        setTimeout(updateCount, 40);
+                    } else { counter.innerText = target; }
+                };
+                setTimeout(updateCount, 500);
+            });
         });
 
-        // 3. Gráficos com Chart.js utilizando paleta da marca
+        // Chart.js (Fiel à versão anterior)
         Chart.defaults.color = '#8b92a5';
         Chart.defaults.font.family = "'Outfit', sans-serif";
+        Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(18, 18, 21, 0.9)';
+        Chart.defaults.plugins.tooltip.titleColor = '#fff';
 
         const ctxRisco = document.getElementById('riscoChart').getContext('2d');
         new Chart(ctxRisco, {
@@ -488,54 +475,39 @@
             data: {
                 labels: ['Baixo', 'Moderado', 'Alto', 'Crítico'],
                 datasets: [{
-                    data: [45, 30, 15, 10],
-                    // Verde, Amarelo, Laranja da Marca e Vermelho
-                    backgroundColor: ['#00e676', '#ffd60a', '#f27221', '#ff4b4b'],
+                    data: [20, 35, 30, 15],
+                    backgroundColor: ['#10b981', '#facc15', '#f97316', '#ef4444'],
                     borderWidth: 0,
-                    hoverOffset: 10
+                    hoverOffset: 5
                 }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '75%',
-                plugins: {
-                    legend: { position: 'right', labels: { boxWidth: 12, usePointStyle: true } }
-                }
+                responsive: true, maintainAspectRatio: false, cutout: '75%',
+                plugins: { legend: { position: 'right', labels: { boxWidth: 10, usePointStyle: true, font: { size: 12 } } } }
             }
         });
 
-        const ctxEficacia = document.getElementById('eficaciaChart').getContext('2d');
-        let gradientLine = ctxEficacia.createLinearGradient(0, 0, 0, 400);
-        // Gradiente usando a cor Índigo da marca
-        gradientLine.addColorStop(0, 'rgba(74, 54, 181, 0.5)');
-        gradientLine.addColorStop(1, 'rgba(74, 54, 181, 0.0)');
+        const ctxSetor = document.getElementById('setorChart').getContext('2d');
+        let barGradient = ctxSetor.createLinearGradient(0, 0, 0, 400);
+        barGradient.addColorStop(0, '#7a63f1');
+        barGradient.addColorStop(1, '#4a36b5');
 
-        new Chart(ctxEficacia, {
-            type: 'line',
+        new Chart(ctxSetor, {
+            type: 'bar',
             data: {
-                labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+                labels: ['Acabamento', 'Personalização', 'Injetora', 'Estoque'],
                 datasets: [{
-                    label: 'Queixas Registradas',
-                    data: [65, 59, 40, 31, 22, 18],
-                    borderColor: '#4a36b5', // Índigo da marca
-                    backgroundColor: gradientLine,
-                    borderWidth: 3,
-                    fill: true,
-                    tension: 0.4,
-                    pointBackgroundColor: '#090a0f',
-                    pointBorderColor: '#4a36b5',
-                    pointBorderWidth: 2,
-                    pointRadius: 4,
-                    pointHoverRadius: 6
+                    label: 'Índice de Risco (%)',
+                    data: [85, 45, 92, 78],
+                    backgroundColor: barGradient,
+                    borderRadius: 4, borderWidth: 0, barPercentage: 0.6
                 }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
+                responsive: true, maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
                 scales: {
-                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true },
+                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true, max: 100 },
                     x: { grid: { display: false } }
                 }
             }
